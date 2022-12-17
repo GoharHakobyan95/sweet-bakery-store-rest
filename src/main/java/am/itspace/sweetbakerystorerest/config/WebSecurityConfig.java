@@ -1,10 +1,14 @@
 package am.itspace.sweetbakerystorerest.config;
 
+import am.itspace.sweetbakerystorecommon.entity.Role;
 import am.itspace.sweetbakerystorecommon.security.UserDetailServiceImpl;
 import am.itspace.sweetbakerystorerest.security.JwtAuthenticationEntryPoint;
 import am.itspace.sweetbakerystorerest.security.JwtAuthenticationTokenFilter;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,6 +37,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
                 .and()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/api/city").hasAuthority(Role.USER.name())
+                .antMatchers( "/api/city/**").hasAuthority(Role.ADMIN.name())
+                .antMatchers(HttpMethod.GET, "/api/payment").hasAuthority(Role.ADMIN.name())
+                .antMatchers(HttpMethod.GET, "/api/payment/{id}").hasAuthority(Role.USER.name())
+                .antMatchers(HttpMethod.POST, "/api/payment").hasAuthority(Role.USER.name())
+                .antMatchers(HttpMethod.PUT, "/api/payment").hasAuthority(Role.USER.name())
+                .antMatchers(HttpMethod.POST, "/api/order").hasAuthority(Role.USER.name())
+                .antMatchers(HttpMethod.GET, "/api/order/{id}").hasAuthority(Role.USER.name())
+                .antMatchers(HttpMethod.DELETE, "/api/order}").hasAuthority(Role.ADMIN.name())
                 .anyRequest().permitAll();
         // Custom JWT based security filter
         http
@@ -47,4 +60,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .passwordEncoder(passwordEncoder);
     }
 
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
 }

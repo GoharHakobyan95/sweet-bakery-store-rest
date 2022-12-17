@@ -6,6 +6,7 @@ import am.itspace.sweetbakerystorecommon.dto.userDto.UserAuthResponseDto;
 import am.itspace.sweetbakerystorecommon.entity.Role;
 import am.itspace.sweetbakerystorecommon.entity.User;
 import am.itspace.sweetbakerystorecommon.service.UserService;
+
 import am.itspace.sweetbakerystorerest.mapper.UserMapper;
 import am.itspace.sweetbakerystorerest.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,7 @@ public class UserEndpoint {
         user.setRole(Role.USER);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreateAt(new Date());
+        user.setActive(true);
         log.info("User with username {} registered։", user.getEmail());
         return ResponseEntity.ok(userMapper.map(userService.save(user)));
     }
@@ -51,7 +53,7 @@ public class UserEndpoint {
         if (byEmail.isPresent()) {
             User user = byEmail.get();
             if (passwordEncoder.matches(userAuthDto.getPassword(), user.getPassword())) {
-                log.info("User with username {} get outh token", user.getEmail());
+                log.info("User with username {} get auth token", user.getEmail());
                 return ResponseEntity.ok(UserAuthResponseDto.builder()
                         .token(jwtTokenUtil.generateToken(user.getEmail()))
                         .user(userMapper.map(user))
