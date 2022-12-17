@@ -3,6 +3,7 @@ package am.itspace.sweetbakerystorerest.endpoint;
 import am.itspace.sweetbakerystorecommon.dto.userDto.CreateUserDto;
 import am.itspace.sweetbakerystorecommon.dto.userDto.UserAuthDto;
 import am.itspace.sweetbakerystorecommon.dto.userDto.UserAuthResponseDto;
+import am.itspace.sweetbakerystorecommon.dto.userDto.UserDto;
 import am.itspace.sweetbakerystorecommon.entity.Role;
 import am.itspace.sweetbakerystorecommon.entity.User;
 import am.itspace.sweetbakerystorecommon.service.UserService;
@@ -32,7 +33,7 @@ public class UserEndpoint {
 
 
     @PostMapping("/user")
-    public ResponseEntity<?> register(@RequestBody CreateUserDto createUserDto) {
+    public ResponseEntity<UserDto> register(@RequestBody CreateUserDto createUserDto) {
         Optional<User> existingUser = userService.findByEmail(createUserDto.getEmail());
         if (existingUser.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -42,11 +43,12 @@ public class UserEndpoint {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreateAt(new Date());
         log.info("User with username {} registered։", user.getEmail());
-        return ResponseEntity.ok(userMapper.map(userService.save(user)));
+        User saveUser = userService.save(user);
+        return ResponseEntity.ok(userMapper.map(saveUser));
     }
 
     @PostMapping("/user/auth")
-    public ResponseEntity<?> auth(@RequestBody UserAuthDto userAuthDto) {
+    public ResponseEntity<UserAuthResponseDto> auth(@RequestBody UserAuthDto userAuthDto) {
         Optional<User> byEmail = userService.findByEmail(userAuthDto.getEmail());
         if (byEmail.isPresent()) {
             User user = byEmail.get();
