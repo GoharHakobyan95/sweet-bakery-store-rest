@@ -38,7 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/city").hasAuthority(Role.USER.name())
-                .antMatchers( "/api/city/**").hasAuthority(Role.ADMIN.name())
+                .antMatchers( "/api/city/**").hasAnyAuthority(Role.ADMIN.name())
                 .antMatchers(HttpMethod.GET, "/api/payment").hasAuthority(Role.ADMIN.name())
                 .antMatchers(HttpMethod.GET, "/api/payment/{id}").hasAuthority(Role.USER.name())
                 .antMatchers(HttpMethod.POST, "/api/payment").hasAuthority(Role.USER.name())

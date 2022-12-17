@@ -10,6 +10,9 @@ import am.itspace.sweetbakerystorerest.exception.BaseException;
 import am.itspace.sweetbakerystorerest.mapper.CityMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,6 +24,7 @@ import javax.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/city")
@@ -32,9 +36,11 @@ public class CityEndpoint {
     private final CityMapper cityMapper;
 
     @GetMapping
-    public ResponseEntity<List<City>> getAllCities(@AuthenticationPrincipal CurrentUser currentUser) {
+    public List<CityResponseDto> getAllCities(@AuthenticationPrincipal CurrentUser currentUser,
+                                              @PageableDefault(size = 9) Pageable pageable) {
         log.info("Endpoint cities called by {}", currentUser.getUser().getEmail());
-        return ResponseEntity.ok(cityMapper.map(cityService.findAllCities()));
+        Page<City> paginated = cityService.findPaginated(pageable);
+        return paginated.stream().map(cityMapper::map).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -52,8 +58,8 @@ public class CityEndpoint {
 
     @PostMapping
     private ResponseEntity<City> saveCity(@AuthenticationPrincipal CurrentUser currentUser,
-                                       @RequestBody @Valid CreateCityDto createCityDto) {
-        log.info("City {} has been saved by Admin ", currentUser.getUser().getEmail());
+                                          @RequestBody @Valid CreateCityDto createCityDto) {
+        log.info("Admin {} want to create a City ", currentUser.getUser().getEmail());
         return ResponseEntity.status(HttpStatus.CREATED).body(cityService.save(cityMapper.map(createCityDto)));
     }
 

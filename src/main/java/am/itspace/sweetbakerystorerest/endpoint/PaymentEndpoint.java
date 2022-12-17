@@ -10,6 +10,9 @@ import am.itspace.sweetbakerystorecommon.service.PaymentService;
 import am.itspace.sweetbakerystorerest.mapper.PaymentMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/payment")
@@ -30,10 +34,11 @@ public class PaymentEndpoint {
 
     //   Admin can get all user's payments
     @GetMapping
-    public ResponseEntity<List<?>> getAllPayments(@AuthenticationPrincipal CurrentUser currentUser) {
+    public List<PaymentResponseDto> getAllPayments(@AuthenticationPrincipal CurrentUser currentUser,
+                                                   @PageableDefault(size = 9) Pageable pageable) {
         log.info("Endpoint payments called by {}", currentUser.getUser().getEmail());
-        List<Payment> payments = paymentService.getAllPayments();
-        return ResponseEntity.ok(paymentMapper.map(payments));
+        Page<Payment> paginated = paymentService.findPaginated(pageable);
+        return paginated.stream().map(paymentMapper::map).collect(Collectors.toList());
     }
 
     //    Add card by users
