@@ -10,6 +10,9 @@ import am.itspace.sweetbakerystorecommon.service.ProductService;
 import am.itspace.sweetbakerystorerest.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/order")
@@ -31,10 +35,11 @@ public class OrderEndpoint {
 
     // Endpoint for user to show his all orders
     @GetMapping
-    public ResponseEntity<List<OrderResponseDto>> getAllOrders(@AuthenticationPrincipal CurrentUser currentUser) {
+    public List<OrderResponseDto> getAllOrders(@AuthenticationPrincipal CurrentUser currentUser,
+                                               @PageableDefault(size = 9) Pageable pageable) {
         log.info("Endpoint orders called by {}", currentUser.getUser().getEmail());
-        List<Order> allOrders = orderService.getAllOrders(currentUser.getUser());
-        return ResponseEntity.ok(orderMapper.map(allOrders));
+        Page<Order> paginated = orderService.findPaginated(pageable, currentUser);
+        return paginated.stream().map(orderMapper::map).collect(Collectors.toList());
     }
 
     // Endpoint for get user  by orderId
@@ -53,9 +58,9 @@ public class OrderEndpoint {
     @PostMapping
     //User create an order
     public ResponseEntity<OrderResponseDto> createAnOrder(@AuthenticationPrincipal CurrentUser currentUser,
-                                                   @Valid @RequestBody CreateOrderDto createOrderDto,
-                                                   @RequestParam("id") Integer productId,
-                                                   @RequestParam("quantity") Integer quantity) {
+                                                          @Valid @RequestBody CreateOrderDto createOrderDto,
+                                                          @RequestParam("id") Integer productId,
+                                                          @RequestParam("quantity") Integer quantity) {
         log.info("User {} wants to create a new order", currentUser.getUser().getEmail());
         Optional<Product> optProduct = productService.findById(productId);
         if (optProduct.isEmpty() ||
@@ -65,7 +70,7 @@ public class OrderEndpoint {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         Product product = optProduct.get();
-        log.info("New order has been created for user {}", currentUser.getUser().getEmail());
+        log.info("Order has been created for user {}", currentUser.getUser().getEmail());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(orderMapper.map(orderService.saveOrder(currentUser.getUser(), createOrderDto, product, quantity)));
     }
