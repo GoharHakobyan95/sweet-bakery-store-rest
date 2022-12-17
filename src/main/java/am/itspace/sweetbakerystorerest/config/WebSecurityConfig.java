@@ -5,8 +5,7 @@ import am.itspace.sweetbakerystorecommon.security.UserDetailServiceImpl;
 import am.itspace.sweetbakerystorerest.security.JwtAuthenticationEntryPoint;
 import am.itspace.sweetbakerystorerest.security.JwtAuthenticationTokenFilter;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.context.annotation.Bean;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -37,6 +36,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
                 .and()
                 .authorizeRequests()
+                .antMatchers( "/api/categories/**").hasAuthority(Role.ADMIN.name())
+                .antMatchers(HttpMethod.GET,  "/api/categories","/api/categories/{id}").hasAuthority(Role.USER.name())
+                .antMatchers( "/api/products/**").hasAuthority(Role.ADMIN.name())
+                .antMatchers(HttpMethod.GET, "/api/products/{id}", "/api/products").hasAuthority(Role.USER.name())
+                .antMatchers("/api/addresses/**").hasAuthority(Role.ADMIN.name())
+                .antMatchers(HttpMethod.PUT,"/api/addresses").hasAuthority(Role.USER.name() )
                 .antMatchers( "/api/city/**").hasAuthority(Role.ADMIN.name())
                 .antMatchers(HttpMethod.GET, "/api/payment").hasAuthority(Role.ADMIN.name())
                 .antMatchers(HttpMethod.GET, "/api/payment/{id}").hasAnyAuthority(Role.USER.name(), Role.ADMIN.name())
@@ -59,8 +64,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .passwordEncoder(passwordEncoder);
     }
 
-    @Bean
-    public ModelMapper modelMapper() {
-        return new ModelMapper();
-    }
 }

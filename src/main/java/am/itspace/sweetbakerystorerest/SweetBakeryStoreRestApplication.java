@@ -17,7 +17,6 @@ public class SweetBakeryStoreRestApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SweetBakeryStoreRestApplication.class, args);
-
     }
 
     @Bean
