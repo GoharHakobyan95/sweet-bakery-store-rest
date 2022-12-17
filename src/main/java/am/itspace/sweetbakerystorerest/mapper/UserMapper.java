@@ -9,6 +9,7 @@ import org.mapstruct.Mapper;
 public interface UserMapper {
 
     User map(CreateUserDto createUserDto);
+
     UserDto map(User user);
 
 
