@@ -5,8 +5,7 @@ import am.itspace.sweetbakerystorecommon.security.UserDetailServiceImpl;
 import am.itspace.sweetbakerystorerest.security.JwtAuthenticationEntryPoint;
 import am.itspace.sweetbakerystorerest.security.JwtAuthenticationTokenFilter;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.context.annotation.Bean;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -65,8 +64,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .passwordEncoder(passwordEncoder);
     }
 
-    @Bean
-    public ModelMapper modelMapper() {
-        return new ModelMapper();
-    }
 }

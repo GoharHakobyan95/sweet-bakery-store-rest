@@ -10,8 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.Extension;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
-import java.io.File;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
 
@@ -27,7 +27,7 @@ class ProductServiceTest {
     private Product product;
     private Category category;
     @Mock
-    private File file;
+    private MultipartFile file;
 
     @BeforeEach
     public void createAdminAndCategory() {
@@ -59,7 +59,7 @@ class ProductServiceTest {
                 .id(1)
                 .name("Cupcake")
                 .description("With chocolate")
-                .productPic(file.getAbsolutePath())
+                .productPic(file.getContentType())
                 .price(15)
                 .inStore(5)
                 .category(category)
@@ -69,10 +69,10 @@ class ProductServiceTest {
     }
 
     @Test
-    void shouldSaveProductByAdmin() {
+    void shouldSaveProductByAdmin() throws IOException {
         CurrentUser currentUser = new CurrentUser(product.getUser());
         when(productRepository.save(any())).thenReturn(product);
-        productService.save(product, currentUser.getUser());
+        productService.saveProduct(product, file, currentUser.getUser());
 
         when(productRepository.findById(any())).thenReturn(Optional.of(product));
         Optional<Product> byId = productService.findById(1);
