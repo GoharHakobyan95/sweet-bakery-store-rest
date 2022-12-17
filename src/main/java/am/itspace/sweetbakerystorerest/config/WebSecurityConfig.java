@@ -37,14 +37,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/city").hasAuthority(Role.USER.name())
-                .antMatchers( "/api/city/**").hasAnyAuthority(Role.ADMIN.name())
+                .antMatchers( "/api/city/**").hasAuthority(Role.ADMIN.name())
                 .antMatchers(HttpMethod.GET, "/api/payment").hasAuthority(Role.ADMIN.name())
-                .antMatchers(HttpMethod.GET, "/api/payment/{id}").hasAuthority(Role.USER.name())
+                .antMatchers(HttpMethod.GET, "/api/payment/{id}").hasAnyAuthority(Role.USER.name(), Role.ADMIN.name())
                 .antMatchers(HttpMethod.POST, "/api/payment").hasAuthority(Role.USER.name())
-                .antMatchers(HttpMethod.PUT, "/api/payment").hasAuthority(Role.USER.name())
+                .antMatchers(HttpMethod.PUT, "/api/payment/{id}").hasAuthority(Role.USER.name())
                 .antMatchers(HttpMethod.POST, "/api/order").hasAuthority(Role.USER.name())
-                .antMatchers(HttpMethod.GET, "/api/order/{id}").hasAuthority(Role.USER.name())
+                .antMatchers(HttpMethod.GET, "/api/order/{id}").hasAnyAuthority(Role.USER.name(), Role.ADMIN.name())
                 .antMatchers(HttpMethod.DELETE, "/api/order}").hasAuthority(Role.ADMIN.name())
                 .anyRequest().permitAll();
         // Custom JWT based security filter

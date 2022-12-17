@@ -57,17 +57,18 @@ public class CityEndpoint {
 
 
     @PostMapping
-    private ResponseEntity<City> saveCity(@AuthenticationPrincipal CurrentUser currentUser,
-                                          @RequestBody @Valid CreateCityDto createCityDto) {
-        log.info("Admin {} want to create a City ", currentUser.getUser().getEmail());
-        return ResponseEntity.status(HttpStatus.CREATED).body(cityService.save(cityMapper.map(createCityDto)));
+    private ResponseEntity<CityResponseDto> saveCity(@AuthenticationPrincipal CurrentUser currentUser,
+                                                     @RequestBody @Valid CreateCityDto createCityDto) {
+        City savedCity = cityService.save(cityMapper.map(createCityDto));
+        log.info("City {} created by Admin ", currentUser.getUser().getEmail());
+        return ResponseEntity.status(HttpStatus.CREATED).body(cityMapper.map(savedCity));
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCity(@AuthenticationPrincipal CurrentUser currentUser,
-                                        @Valid @RequestBody UpdateCityDto updateCityDto,
-                                        @PathVariable("id") int id) {
+    public ResponseEntity<UpdateCityDto> updateCity(@AuthenticationPrincipal CurrentUser currentUser,
+                                                    @Valid @RequestBody UpdateCityDto updateCityDto,
+                                                    @PathVariable("id") int id) {
         log.info("Admin {} wants to update city", currentUser.getUser().getEmail());
         Optional<City> cityById = cityService.findById(id);
         if (cityById.isEmpty()) {
@@ -76,7 +77,7 @@ public class CityEndpoint {
         }
         CityResponseDto cityResponseDto = cityService.updateCity(cityById.get(), updateCityDto);
         log.info("City {} has been updated on {}, by Admin {}", cityResponseDto.getName(), currentUser.getUser().getEmail());
-        return ResponseEntity.ok((cityMapper.map(updateCityDto)));
+        return ResponseEntity.ok(updateCityDto);
     }
 
 

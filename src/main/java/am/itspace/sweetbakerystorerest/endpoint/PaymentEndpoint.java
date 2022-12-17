@@ -43,10 +43,11 @@ public class PaymentEndpoint {
 
     //    Add card by users
     @PostMapping
-    private ResponseEntity<?> saveCardDetails(@AuthenticationPrincipal CurrentUser currentUser,
-                                              @RequestBody @Valid CreatePaymentDto createPaymentDto) {
+    private ResponseEntity<PaymentResponseDto> saveCardDetails(@AuthenticationPrincipal CurrentUser currentUser,
+                                                               @RequestBody @Valid CreatePaymentDto createPaymentDto) {
+        Payment payment = paymentService.saveCard(createPaymentDto, currentUser.getUser());
         log.info("Card {} has been saved by User ", currentUser.getUser().getEmail());
-        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.saveCard(createPaymentDto, currentUser.getUser()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentMapper.map(payment));
     }
 
 
@@ -64,9 +65,9 @@ public class PaymentEndpoint {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCity(@AuthenticationPrincipal CurrentUser currentUser,
-                                        @RequestBody UpdatePaymentDto updatePaymentDto,
-                                        @PathVariable("id") int id) {
+    public ResponseEntity<UpdatePaymentDto> updateCardDetails(@AuthenticationPrincipal CurrentUser currentUser,
+                                                       @RequestBody UpdatePaymentDto updatePaymentDto,
+                                                       @PathVariable("id") int id) {
         log.info("User {} wants to update his card details", currentUser.getUser().getEmail());
         Optional<Payment> paymentOpt = paymentService.findById(id);
         if (paymentOpt.isEmpty()) {
@@ -75,13 +76,13 @@ public class PaymentEndpoint {
         }
         PaymentResponseDto updatedCardDetails = paymentService.update(paymentOpt.get(), updatePaymentDto, currentUser.getUser());
         log.info("Card {} has been updated on {}, by User {}", updatedCardDetails, currentUser.getUser().getEmail());
-        return ResponseEntity.ok((paymentMapper.map(updatePaymentDto)));
+        return ResponseEntity.ok(updatePaymentDto);
     }
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<UpdateCityDto> removeCityById(@AuthenticationPrincipal CurrentUser currentUser,
-                                                        @PathVariable("id") int id) {
+    public ResponseEntity<UpdatePaymentDto> removeCardById(@AuthenticationPrincipal CurrentUser currentUser,
+                                                           @PathVariable("id") int id) {
         log.info("User {} wants to remove a card", currentUser.getUser().getEmail());
         Optional<Payment> paymentOpt = paymentService.findById(id);
         if (paymentOpt.isEmpty()) {
