@@ -55,8 +55,14 @@ public class OrderEndpoint {
         return ResponseEntity.ok(orderMapper.map(optOrder.get()));
     }
 
+    /**
+     * This endpoint is used to create an order for the given product with the given quantity. The endpoint requires two request parameters, id and quantity.
+     * The current user is authenticated using an authentication token provided earlier.
+     * The order data is obtained from createOrderDto.
+     * Prior to saving the order, it is verified that the product exists and the store has enough items to satisfy the order.
+     * If the order is successfully saved, an OrderResponseDto object is returned with status code CREATED (201).
+     */
     @PostMapping
-    //User create an order
     public ResponseEntity<OrderResponseDto> createAnOrder(@AuthenticationPrincipal CurrentUser currentUser,
                                                           @Valid @RequestBody CreateOrderDto createOrderDto,
                                                           @RequestParam("id") Integer productId,
