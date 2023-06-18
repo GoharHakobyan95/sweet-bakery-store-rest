@@ -66,15 +66,15 @@ public class PaymentEndpoint {
 
     @PutMapping("/{id}")
     public ResponseEntity<UpdatePaymentDto> updateCardDetails(@AuthenticationPrincipal CurrentUser currentUser,
-                                                       @RequestBody UpdatePaymentDto updatePaymentDto,
-                                                       @PathVariable("id") int id) {
+                                                              @RequestBody UpdatePaymentDto updatePaymentDto,
+                                                              @PathVariable("id") int id) {
         log.info("User {} wants to update his card details", currentUser.getUser().getEmail());
         Optional<Payment> paymentOpt = paymentService.findById(id);
         if (paymentOpt.isEmpty()) {
             log.warn("Card with id {} doesn't exist.", id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        PaymentResponseDto updatedCardDetails = paymentService.update(paymentOpt.get(), updatePaymentDto, currentUser.getUser());
+        PaymentResponseDto updatedCardDetails = paymentService.update(updatePaymentDto, currentUser.getUser());
         log.info("Card {} has been updated on {}, by User {}", updatedCardDetails, currentUser.getUser().getEmail());
         return ResponseEntity.ok(updatePaymentDto);
     }
